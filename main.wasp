@@ -18,7 +18,7 @@ app Styrate {
     },
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/"
-  },
+  }
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
@@ -31,85 +31,94 @@ page SignupPage {
 }
 
 entity User {=psl
-    id        Int        @id @default(autoincrement())
-    username  String     @unique
-    password  String
-    videos    Video[]
-    comments  Comment[]
-    reactions Reaction[]
+    id             Int          @id @default(autoincrement())
+    username       String       @unique
+    password       String
+    profilePicture String
+    handle         String       @unique
+    points         Int          @default(0)
+    submissions    Submission[]
 psl=}
 
-entity Video {=psl
-    id        Int        @id @default(autoincrement())
-    url       String
-    user      User       @relation(fields: [userId], references: [id])
-    userId    Int
-    comments  Comment[]
-    reactions Reaction[]
+entity Category {=psl
+    id       Int       @id @default(autoincrement())
+    name     String    @unique
+    emoji    String
+    contests Contest[]
 psl=}
 
-entity Comment {=psl
-    id      Int    @id @default(autoincrement())
-    text    String
-    user    User   @relation(fields: [userId], references: [id])
-    userId  Int
-    video   Video  @relation(fields: [videoId], references: [id])
-    videoId Int
+entity Contest {=psl
+    id          Int          @id @default(autoincrement())
+    name        String
+    description String
+    categoryId  Int
+    category    Category     @relation(fields: [categoryId], references: [id])
+    submissions Submission[]
 psl=}
 
-entity Reaction {=psl
-    id      Int    @id @default(autoincrement())
-    type    String
-    user    User   @relation(fields: [userId], references: [id])
-    userId  Int
-    video   Video  @relation(fields: [videoId], references: [id])
-    videoId Int
+entity Submission {=psl
+    id          Int     @id @default(autoincrement())
+    videoUrl    String
+    title       String
+    description String
+    points      Int     @default(0)
+    contestId   Int
+    contest     Contest @relation(fields: [contestId], references: [id])
+    userId      Int
+    user        User    @relation(fields: [userId], references: [id])
 psl=}
 
-action createVideo {
-  fn: import { createVideo } from "@server/actions.js",
-  entities: [Video]
+action createSubmission {
+  fn: import { createSubmission } from "@server/actions.js",
+  entities: [Submission, Contest, User]
 }
 
-action createComment {
-  fn: import { createComment } from "@server/actions.js",
-  entities: [Comment]
+action updateProfile {
+  fn: import { updateProfile } from "@server/actions.js",
+  entities: [User]
 }
 
-action createReaction {
-  fn: import { createReaction } from "@server/actions.js",
-  entities: [Reaction]
+query getContests {
+  fn: import { getContests } from "@server/queries.js",
+  entities: [Contest, Category]
 }
 
-query getVideos {
-  fn: import { getVideos } from "@server/queries.js",
-  entities: [Video]
+query getSubmissions {
+  fn: import { getSubmissions } from "@server/queries.js",
+  entities: [Submission, Contest, User]
 }
 
-query getVideo {
-  fn: import { getVideo } from "@server/queries.js",
-  entities: [Video, Comment, Reaction]
+query getUserProfile {
+  fn: import { getUserProfile } from "@server/queries.js",
+  entities: [User]
 }
 
-query getUser {
-  fn: import { getUser } from "@server/queries.js",
-  entities: [User, Video, Comment, Reaction]
-}
-
-route HomePageRoute { path: "/", to: HomePage }
+route HomeRoute { path: "/", to: HomePage }
 page HomePage {
-  component: import { HomePage } from "@client/pages/Home.jsx",
-  authRequired: false
-}
-
-route VideoRoute { path: "/video/:videoId", to: VideoPage }
-page VideoPage {
-  component: import { Video } from "@client/pages/Video.jsx",
+  component: import { Home } from "@client/pages/Home.jsx",
   authRequired: true
 }
 
-route UserProfileRoute { path: "/user/:userId", to: UserProfilePage }
-page UserProfilePage {
-  component: import { UserProfile } from "@client/pages/UserProfile.jsx",
+route ContestRoute { path: "/contest/:contestId", to: ContestPage }
+page ContestPage {
+  component: import { ContestPage } from "@client/pages/Contest.jsx",
+  authRequired: true
+}
+
+route SubmissionRoute { path: "/submission/:submissionId", to: SubmissionPage }
+page SubmissionPage {
+  component: import { Submission } from "@client/pages/Submission.jsx",
+  authRequired: true
+}
+
+route ProfileRoute { path: "/profile/:userId", to: ProfilePage }
+page ProfilePage {
+  component: import { Profile } from "@client/pages/Profile.jsx",
+  authRequired: true
+}
+
+route SettingsRoute { path: "/settings", to: SettingsPage }
+page SettingsPage {
+  component: import { Settings } from "@client/pages/Settings.jsx",
   authRequired: true
 }

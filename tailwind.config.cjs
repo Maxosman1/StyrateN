@@ -9,16 +9,16 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          50:  colors.sky[50],
-          100: colors.sky[100],
-          200: colors.sky[200],
-          300: colors.sky[300],
-          400: colors.sky[400],
-          500: colors.sky[500],
-          600: colors.sky[600],
-          700: colors.sky[700],
-          800: colors.sky[800],
-          900: colors.sky[900],
+          50:  colors.red[50],
+          100: colors.red[100],
+          200: colors.red[200],
+          300: colors.red[300],
+          400: colors.red[400],
+          500: colors.red[500],
+          600: colors.red[600],
+          700: colors.red[700],
+          800: colors.red[800],
+          900: colors.red[900],
         }
       }
     },

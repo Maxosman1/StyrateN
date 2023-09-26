@@ -1,39 +1,34 @@
 import HttpError from '@wasp/core/HttpError.js'
 
-export const getVideos = async (args, context) => {
+
+export const getContests = async (args, context) => {
   if (!context.user) { throw new HttpError(401) };
 
-  return context.entities.Video.findMany();
+  return context.entities.Contest.findMany({});
 }
 
-export const getVideo = async (args, context) => {
-  if (!context.user) { throw new HttpError(401) };
+export const getSubmissions = async ({ contestId }, context) => {
+  if (!context.user) { throw new HttpError(401) }
 
-  const { id } = args;
+  const submissions = await context.entities.Submission.findMany({
+    where: { contest: { id: contestId } },
+    include: { contest: true, user: true }
+  })
 
-  const video = await context.entities.Video.findUnique({
-    where: { id },
-    include: { comments: true, reactions: true }
-  });
-
-  if (!video) throw new HttpError(404, 'No video with id ' + id);
-
-  return video;
+  return submissions;
 }
 
-export const getUser = async ({ userId }, context) => {
+export const getUserProfile = async ({ id }, context) => {
   if (!context.user) { throw new HttpError(401) }
 
   const user = await context.entities.User.findUnique({
-    where: { id: userId },
+    where: { id },
     include: {
-      videos: true,
-      comments: true,
-      reactions: true
+      submissions: true
     }
   });
 
-  if (!user) { throw new HttpError(404, `No user with id ${userId}`) }
+  if (!user) throw new HttpError(404, 'No user with id ' + id);
 
   return user;
 }

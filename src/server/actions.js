@@ -1,38 +1,36 @@
 import HttpError from '@wasp/core/HttpError.js'
 
-export const createVideo = async ({ url }, context) => {
-  if (!context.user) { throw new HttpError(401) };
+export const createSubmission = async ({ videoUrl, contestId, userId }, context) => {
+  const videoTitle = extractVideoTitle(videoUrl);
+  const videoDescription = extractVideoDescription(videoUrl);
 
-  return context.entities.Video.create({
+  const submission = await context.entities.Submission.create({
     data: {
-      url,
-      userId: context.user.id
-    }
-  });
-}
-
-export const createComment = async ({ text, videoId }, context) => {
-  if (!context.user) { throw new HttpError(401) };
-
-  const comment = await context.entities.Comment.create({
-    data: {
-      text,
-      userId: context.user.id,
-      videoId
+      videoUrl,
+      title: videoTitle,
+      description: videoDescription,
+      points: 0,
+      contest: { connect: { id: contestId } },
+      user: { connect: { id: userId } }
     }
   });
 
-  return comment;
+  return submission;
 }
 
-export const createReaction = async ({ type, videoId }, context) => {
+function extractVideoTitle(videoUrl) {
+  // Implementation to extract video title from URL.
+}
+
+function extractVideoDescription(videoUrl) {
+  // Implementation to extract video description from URL.
+}
+
+export const updateProfile = async (args, context) => {
   if (!context.user) { throw new HttpError(401) };
 
-  return context.entities.Reaction.create({
-    data: {
-      type,
-      userId: context.user.id,
-      videoId
-    }
+  return context.entities.User.update({
+    where: { id: args.userId },
+    data: { profilePicture: args.profilePicture, handle: args.handle }
   });
 }
